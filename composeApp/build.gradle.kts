@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -25,9 +24,12 @@ kotlin {
             implementation("io.ktor:ktor-client-cio:${ktor}")
             implementation("ch.qos.logback:logback-classic:${logback}")
 
+            implementation(libs.androidx.constraintlayout.compose)
+            implementation(libs.androidx.navigation.compose)
+            implementation(libs.coil.compose)
+            implementation(libs.androidx.material.icons.extended)
 
 //            coil para cargar imagenes async
-            implementation("io.coil-kt.coil3:coil-compose:3.3.0")
             implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
 //            glide para imagenes
             implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
@@ -64,6 +66,7 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/INDEX.LIST"
         }
     }
     buildTypes {

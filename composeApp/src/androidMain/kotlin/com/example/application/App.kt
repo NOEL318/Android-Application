@@ -26,7 +26,7 @@ import org.jetbrains.compose.resources.painterResource
 
 import application.composeapp.generated.resources.Res
 import application.composeapp.generated.resources.compose_multiplatform
-import coil3.compose.AsyncImage
+import coil.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 

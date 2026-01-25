@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.android.build.api.dsl.LibraryExtension
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -6,12 +6,8 @@ plugins {
 }
 
 kotlin {
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
-    }
-    
+
+    // Targets de iOS
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -21,10 +17,10 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
         commonMain.dependencies {
-            // put your Multiplatform dependencies here
+            // dependencias comunes
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -32,14 +28,16 @@ kotlin {
     }
 }
 
-android {
+configure<LibraryExtension> {
     namespace = "com.example.application.shared"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+
+    defaultConfig {
+        minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-    }
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
     }
 }
