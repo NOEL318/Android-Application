@@ -5,7 +5,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.example.application.domain.usecase.RegisterUserUseCase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class RegisterViewModel(private val registerUserUseCase: RegisterUserUseCase) : ViewModel() {

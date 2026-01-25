@@ -13,20 +13,20 @@ import com.example.application.presentation.viewmodel.RegisterViewModel
 @Preview(showBackground = true, name = "1. Inicio")
 @Composable
 fun PreviewHomeScreen() {
-    // rememberNavController() crea un navegador falso que no hace nada per renderiza
-    HomeScreen(navController = rememberNavController())
+    // onnavigate() crea un navegador falso que no hace nada per renderiza
+    HomeScreen(onNavigate = {})
 }
 
 @Preview(showBackground = true, name = "3. Información")
 @Composable
 fun PreviewInfoScreen() {
-    InfoScreen(navController = rememberNavController())
+    InfoScreen(onBack = {})
 }
 
 @Preview(showBackground = true, name = "4. Galería")
 @Composable
 fun PreviewGalleryScreen() {
-    GalleryScreen(navController = rememberNavController())
+    GalleryScreen(onBack = {})
 }
 
 // se simula el ViewModel y el repository
@@ -44,5 +44,6 @@ fun PreviewRegisterScreen() {
     val fakeViewModel = RegisterViewModel(fakeUseCase)
 
     // render
-    RegisterScreen(navController = rememberNavController(), viewModel = fakeViewModel)
+    RegisterScreen(viewModel = fakeViewModel,
+        onBack = {})
 }

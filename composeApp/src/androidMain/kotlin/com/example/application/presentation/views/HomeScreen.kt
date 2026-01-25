@@ -26,7 +26,7 @@ import com.example.application.presentation.viewmodel.RegisterViewModel
 
 // inicio
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(onNavigate: (String) -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -34,25 +34,26 @@ fun HomeScreen(navController: NavController) {
     ) {
         Text("Desarrollo de Aplicaciones Móviles", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(32.dp))
-        Button(onClick = { navController.navigate("registro") }) {
+        Button(onClick = { onNavigate("registro") }) {
             Text("Ir a Registro")
         }
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedButton(onClick = { navController.navigate("galeria") }) { Text("Galería") }
-        TextButton(onClick = { navController.navigate("info") }) { Text("Info") }
+        OutlinedButton(onClick = { onNavigate("galeria") }) { Text("Galería") }
+        TextButton(onClick = { onNavigate("info") }) { Text("Info") }
     }
 }
 
 // registro
 @Composable
-fun RegisterScreen(navController: NavController, viewModel: RegisterViewModel) {
+fun RegisterScreen(viewModel: RegisterViewModel,
+                   onBack: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val paises = listOf("México", "España", "Colombia", "Argentina")
 
     // Escuchar cambios en el mensaje para mostrar Toast o navegar (simplificado aquí)
     if (viewModel.message == "Registro Exitoso") {
         LaunchedEffect(Unit) {
-            navController.popBackStack()
+            onBack()
         }
     }
 
@@ -125,7 +126,7 @@ fun RegisterScreen(navController: NavController, viewModel: RegisterViewModel) {
 
 // info
 @Composable
-fun InfoScreen(navController: NavController) {
+fun InfoScreen(onBack: () -> Unit) {
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (logo, text, btn) = createRefs()
         Icon(
@@ -143,7 +144,7 @@ fun InfoScreen(navController: NavController) {
             }
         )
         Button(
-            onClick = { navController.popBackStack() },
+            onClick = { onBack() },
             modifier = Modifier.constrainAs(btn) {
                 bottom.linkTo(parent.bottom, margin = 24.dp)
                 end.linkTo(parent.end, margin = 24.dp)
@@ -154,7 +155,7 @@ fun InfoScreen(navController: NavController) {
 
 // galeria con grid layout
 @Composable
-fun GalleryScreen(navController: NavController) {
+fun GalleryScreen(onBack: () -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(8.dp),
