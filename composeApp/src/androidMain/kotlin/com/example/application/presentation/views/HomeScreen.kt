@@ -28,18 +28,36 @@ import com.example.application.presentation.viewmodel.RegisterViewModel
 @Composable
 fun HomeScreen(onNavigate: (String) -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Desarrollo de Aplicaciones Móviles", style = MaterialTheme.typography.headlineMedium)
+        Text("Restaurante Universitario", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(32.dp))
-        Button(onClick = { onNavigate("registro") }) {
-            Text("Ir a Registro")
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedButton(onClick = { onNavigate("galeria") }) { Text("Galería") }
-        TextButton(onClick = { onNavigate("info") }) { Text("Info") }
+
+        // Botones de Categorías
+        MenuButton("☕ Desayunos") { onNavigate("desayunos") }
+        MenuButton("🍖 Platos Fuertes") { onNavigate("platos_fuertes") }
+        MenuButton("🍰 Postres") { onNavigate("postres") }
+        MenuButton("🍹 Bebidas") { onNavigate("bebidas") }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Botones antiguos (puedes dejarlos o quitarlos)
+        OutlinedButton(onClick = { onNavigate("registro") }) { Text("Registro Usuario") }
+    }
+}
+
+@Composable
+fun MenuButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Text(text)
     }
 }
 
