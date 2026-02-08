@@ -64,9 +64,22 @@ class MainActivity : ComponentActivity() {
                             composable("desayunos") {
                                 // Datos simulados (Mock Data)
                                 val datos = listOf(
-                                    Platillo("Huevos Rancheros", "Salsa roja casera", 80.0, esRecomendacionChef = true),
-                                    Platillo("Avena con Frutas", "Light y nutritiva", 60.0, esFiltro1 = true), // Saludable
-                                    Platillo("Hot Cakes", "Miel de maple", 90.0, esFiltro2 = true, esRecomendacionChef = true) // Dulce
+                                    Platillo("Huevos Rancheros",
+                                        "Salsa roja casera",
+                                        80.0,
+                                        esRecomendacionChef = true,
+                                        img_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRi30va67R11hQqpQYBT9p7OyIzETr_iQpcBZypJlqjFWOJ6z5fV_sNvVKw89WaMF-ehK_rQBExZ250bDYUe-gNeQLQ7xiG5xtBDLEhS8&s=10"),
+                                    Platillo("Avena con Frutas",
+                                        "Light y nutritiva",
+                                        60.0,
+                                        esFiltro1 = true,
+                                        img_url = "https://granvita.com/wp-content/uploads/2024/03/bowl-de-avena-con-fruta.jpg"), // Saludable
+                                    Platillo("Hot Cakes",
+                                        "Miel de maple",
+                                        90.0,
+                                        esFiltro2 = true,
+                                        esRecomendacionChef = true,
+                                        img_url = "https://images.aws.nestle.recipes/original/4ba3978c241c628affcaf5c4e837270e_hot_cakes_clasicos_-_desayuno.jpg") // Dulce
                                 )
                                 MenuScreen(
                                     tituloCategoria = "Desayunos",
@@ -80,9 +93,20 @@ class MainActivity : ComponentActivity() {
                             // --- CATEGORÍA 2: PLATOS FUERTES ---
                             composable("platos_fuertes") {
                                 val datos = listOf(
-                                    Platillo("Enchiladas Suizas", "Pollo y queso manchego", 120.0, esRecomendacionChef = true),
-                                    Platillo("Aguachile", "Camarón fresco y chile serrano", 150.0, esFiltro1 = true), // Picante
-                                    Platillo("Hamburguesa Vegana", "Lentejas y avena", 110.0, esFiltro2 = true) // Vegano
+                                    Platillo("Enchiladas Suizas", "Pollo y queso manchego",
+                                        120.0,
+                                        esRecomendacionChef = true,
+                                        img_url = "https://recetinas.com/wp-content/uploads/2018/05/enchiladas-suizas.jpg"),
+                                    Platillo("Aguachile",
+                                        "Camarón fresco y chile serrano",
+                                        150.0,
+                                        esFiltro1 = true,
+                                        img_url = "https://editorialtelevisa.brightspotcdn.com/dims4/default/b0d270a/2147483647/strip/true/crop/700x700+250+0/resize/1000x1000!/quality/90/?url=https%3A%2F%2Fk2-prod-editorial-televisa.s3.us-east-1.amazonaws.com%2Fbrightspot%2F6e%2F64%2Fecd269fa448f84facae9cd8254ce%2Faguachile-sinaloa.jpg"), // Picante
+                                    Platillo("Hamburguesa Vegana",
+                                        "Lentejas y avena",
+                                        110.0,
+                                        esFiltro2 = true,
+                                        img_url = "https://www.conasi.eu/blog/wp-content/uploads/2022/05/hamburguesa-vegana-1.jpg") // Vegano
                                 )
                                 MenuScreen(
                                     tituloCategoria = "Platos Fuertes",
@@ -96,13 +120,22 @@ class MainActivity : ComponentActivity() {
                             // --- CATEGORÍA 3: POSTRES ---
                             composable("postres") {
                                 val datos = listOf(
-                                    Platillo("Pastel de Chocolate", "Doble fudge", 60.0, esFiltro1 = true, esRecomendacionChef = true),
-                                    Platillo("Cheesecake Fresa", "Estilo New York", 70.0, esFiltro2 = true), // Frutal
+                                    Platillo("Pastel de Chocolate",
+                                        "Doble fudge",
+                                        60.0,
+                                        esFiltro1 = true,
+                                        esRecomendacionChef = true,
+                                        img_url = "https://consola.lazarza.com.mx//storage/176/choco.png"),
+                                    Platillo("Cheesecake Fresa",
+                                        "Estilo New York",
+                                        70.0, esFiltro2 = true,
+                                        img_url = "https://www.splenda.com/wp-content/themes/bistrotheme/assets/recipe-images/strawberry-topped-cheesecake.jpg"), // Frutal
                                     Platillo(
                                         "Brownie con Helado",
                                         "Nueces y vainilla",
                                         80.0,
-                                        esFiltro1 = true
+                                        esFiltro1 = true,
+                                        img_url = "https://chefeel.com/chefgeneralfiles/2023/08/rebanada-brownie-chocolate-helado-nuez-vainilla-880x875.jpg"
                                     ) // Chocolate
                                 )
                                 MenuScreen(
@@ -117,9 +150,22 @@ class MainActivity : ComponentActivity() {
                             // --- CATEGORÍA 4: BEBIDAS ---
                             composable("bebidas") {
                                 val datos = listOf(
-                                    Platillo("Cerveza Artesanal", "IPA", 50.0, esFiltro1 = true), // Alcohol
-                                    Platillo("Café Americano", "Grano selecto", 30.0, esFiltro2 = true), // Caliente
-                                    Platillo("Carajillo", "Licor 43 shakeado", 110.0, esFiltro1 = true, esRecomendacionChef = true)
+                                    Platillo("Cerveza Artesanal",
+                                        "IPA",
+                                        50.0,
+                                        esFiltro1 = true,
+                                        img_url = "https://i0.wp.com/www.quepasaoaxaca.com/wp-content/uploads/2017/11/beer.jpg?fit=960%2C600&ssl=1"), // Alcohol
+                                    Platillo("Café Americano",
+                                        "Grano selecto",
+                                        30.0,
+                                        esFiltro2 = true,
+                                        img_url = "https://excelso77.com/wp-content/uploads/2024/05/por-que-el-cafe-americano-se-llama-asi-te-lo-contamos.webp"), // Caliente
+                                    Platillo("Carajillo",
+                                        "Licor 43 shakeado",
+                                        110.0,
+                                        esFiltro1 = true,
+                                        esRecomendacionChef = true,
+                                        img_url = "https://i.blogs.es/26d9c0/1366_2000-44-/450_1000.jpg")
                                 )
                                 MenuScreen(
                                     tituloCategoria = "Bebidas",

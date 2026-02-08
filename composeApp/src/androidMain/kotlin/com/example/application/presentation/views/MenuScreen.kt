@@ -1,9 +1,12 @@
 package com.example.application.presentation.views
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
@@ -11,12 +14,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.application.domain.model.Platillo
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
 fun MenuScreen(
     tituloCategoria: String,
@@ -105,23 +112,42 @@ fun MenuScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = platillo.nombre,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+                                GlideImage(
+                                    model = platillo.img_url,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .border(
+                                            BorderStroke(1.dp, Color.Gray),
+                                            AbsoluteRoundedCornerShape(10.dp)
+                                        )
+                                        .clip(AbsoluteRoundedCornerShape(10.dp))
+                                        .width(110.dp)
                                 )
-                                if (platillo.esRecomendacionChef) {
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Icon(Icons.Default.Star, "Chef", tint = Color(0xFFDAA520))
+                                Column(modifier = Modifier.padding(start = 8.dp)) {
+                                    Text(
+                                        text = platillo.nombre,
+                                        fontSize = 20.sp,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(text = platillo.descripcion, style = MaterialTheme.typography.bodyMedium)
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        if (platillo.esRecomendacionChef) {
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Icon(Icons.Default.Star, "Chef", tint = Color(0xFFDAA520))
+                                        }
+                                        Text(
+                                            text = "$${platillo.precio}",
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            style = MaterialTheme.typography.titleSmall,
+                                            color = MaterialTheme.colorScheme.primary)
+
+                                    }
                                 }
                             }
-                            Text(text = platillo.descripcion, style = MaterialTheme.typography.bodyMedium)
-                            Text(
-                                text = "$${platillo.precio}",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.align(Alignment.End)
-                            )
+
+
                         }
                     }
                 }
