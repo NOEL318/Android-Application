@@ -34,6 +34,13 @@ kotlin {
 //            glide para imagenes
             implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
 
+            // Retrofit para peticiones HTTP
+            implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
+            // Convertidor Gson para transformar el JSON de SuperheroAPI a objetos Kotlin
+            implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+            implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)

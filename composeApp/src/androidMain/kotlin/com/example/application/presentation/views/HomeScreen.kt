@@ -42,6 +42,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
         MenuButton("🍖 Platos Fuertes") { onNavigate("platos_fuertes") }
         MenuButton("🍰 Postres") { onNavigate("postres") }
         MenuButton("🍹 Bebidas") { onNavigate("bebidas") }
+        MenuButton("🦸 Buscar Superhéroes") { onNavigate("superheroes") }
 
         Spacer(modifier = Modifier.height(24.dp))
 

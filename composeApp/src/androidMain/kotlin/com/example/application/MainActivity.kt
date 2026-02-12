@@ -14,17 +14,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.application.data.remote.RetrofitClient
 import com.example.application.data.repository.AuthRepositoryImpl
+import com.example.application.data.repository.SuperheroRepositoryImpl
 import com.example.application.domain.model.Platillo
 import com.example.application.domain.usecase.RegisterUserUseCase
 import com.example.application.presentation.viewmodel.MainViewModel
 import com.example.application.presentation.viewmodel.RegisterViewModel
+import com.example.application.presentation.viewmodel.SuperheroViewModel
+import com.example.application.presentation.viewmodel.SuperheroViewModelFactory
 import com.example.application.presentation.viewmodel.ViewModelFactory
 import com.example.application.presentation.views.GalleryScreen
 import com.example.application.presentation.views.HomeScreen
 import com.example.application.presentation.views.InfoScreen
 import com.example.application.presentation.views.MenuScreen
 import com.example.application.presentation.views.RegisterScreen
+import com.example.application.presentation.views.SuperheroScreen
 import com.example.application.presentation.views.components.LoadingOverlay
 import com.example.application.ui.theme.AppTheme
 
@@ -36,6 +41,11 @@ class MainActivity : ComponentActivity() {
         val authRepository = AuthRepositoryImpl()
         val registerUseCase = RegisterUserUseCase(authRepository)
         val regFactory = ViewModelFactory(registerUseCase)
+        val api = RetrofitClient.superheroApi
+        val superheroRepository = SuperheroRepositoryImpl(api)
+        val superheroFactory = SuperheroViewModelFactory(superheroRepository)
+
+
 
         setContent {
             AppTheme {
@@ -196,6 +206,13 @@ class MainActivity : ComponentActivity() {
                                 GalleryScreen(
                                     onBack = { mainViewModel.volverConEspera(navController) }
                                 )
+                            }
+
+                            composable("superheroes") {
+                                // 3. Obtener el ViewModel usando el Factory
+                                val sViewModel: SuperheroViewModel = viewModel(factory = superheroFactory)
+
+                                SuperheroScreen(viewModel = sViewModel)
                             }
                         }
                         LoadingOverlay(isVisible = mainViewModel.isLoading)
