@@ -1,3 +1,4 @@
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -13,34 +14,11 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    val ktor = "3.3.3"
-    val logback = "1.5.25"
+    
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
-            //            ktor para http clients
-            implementation("io.ktor:ktor-client-core:${ktor}")
-            implementation("io.ktor:ktor-client-cio:${ktor}")
-            implementation("ch.qos.logback:logback-classic:${logback}")
-
-            implementation(libs.androidx.constraintlayout.compose)
-            implementation(libs.androidx.navigation.compose)
-            implementation(libs.coil.compose)
-            implementation(libs.androidx.material.icons.extended)
-
-//            coil para cargar imagenes async
-            implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
-//            glide para imagenes
-            implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
-
-            // Retrofit para peticiones HTTP
-            implementation("com.squareup.retrofit2:retrofit:2.9.0")
-
-            // Convertidor Gson para transformar el JSON de SuperheroAPI a objetos Kotlin
-            implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-            implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
-
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -51,7 +29,6 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(projects.shared)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -73,7 +50,6 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
-            excludes += "META-INF/INDEX.LIST"
         }
     }
     buildTypes {
