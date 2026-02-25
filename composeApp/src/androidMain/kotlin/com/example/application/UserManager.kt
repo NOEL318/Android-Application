@@ -1,34 +1,58 @@
-package com.example.application// En commonMain o androidMain (para este ejemplo usaremos el contexto de Android)
+package com.example.application
+
 import android.content.Context
-import android.content.SharedPreferences
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 
 class UserManager(context: Context) {
-    private val prefs: SharedPreferences = 
-        context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+    private val auth: FirebaseAuth = Firebase.auth
+    private val prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
-    fun saveData(datos: Map<String, String>) {
+    // Registro en Firebase
+    fun registerUser(data: Map<String, String>, onResult: (Boolean, String?) -> Unit) {
+        val email = data["correo"] ?: ""
+        val pass = data["password"] ?: ""
+
+        if (email.isEmpty() || pass.isEmpty()) {
+            onResult(false, "Correo o contraseña vacíos")
+            return
+        }
+
+        auth.createUserWithEmailAndPassword(email, pass)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    saveLocalData(data)
+                    onResult(true, null)
+                } else {
+                    onResult(false, task.exception?.message)
+                }
+            }
+    }
+
+    // Login en Firebase
+    fun loginUser(email: String, pass: String, onResult: (Boolean, String?) -> Unit) {
+        auth.signInWithEmailAndPassword(email, pass)
+            .addOnCompleteListener { task ->
+                onResult(task.isSuccessful, task.exception?.message)
+            }
+    }
+
+    private fun saveLocalData(datos: Map<String, String>) {
         val editor = prefs.edit()
         datos.forEach { (key, value) -> editor.putString(key, value) }
-        editor.putBoolean("is_registered", true)
         editor.apply()
     }
 
-    fun getData(): Map<String, String> {
-        return mapOf(
-            "Nombre" to (prefs.getString("Nombre", "") ?: ""),
-            "Apellido" to (prefs.getString("Apellido", "") ?: ""),
-            "Matricula" to (prefs.getString("Matricula", "") ?: ""),
-            "Facultad" to (prefs.getString("Facultad", "") ?: ""),
-            "Semestre" to (prefs.getString("Semestre", "") ?: ""),
-            "Sexo" to (prefs.getString("Sexo", "") ?: ""),
-            "correo" to (prefs.getString("correo", "") ?: ""),
-            "password" to (prefs.getString("password", "") ?: "")
-        )
+    fun getData(): Map<String, String?> {
+        val fields = listOf("Nombre", "Apellido", "Matricula", "Facultad", "Semestre", "Sexo", "correo")
+        return fields.associateWith { prefs.getString(it, "") }
     }
 
-    fun isRegistered(): Boolean = prefs.getBoolean("is_registered", false)
+    fun isUserLoggedIn(): Boolean = auth.currentUser != null
 
-    fun clearData() {
+    fun logout() {
+        auth.signOut()
         prefs.edit().clear().apply()
     }
 }
