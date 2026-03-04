@@ -21,6 +21,8 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.appcompat)
+            implementation(libs.androidx.biometric)
 
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:34.9.0"))
             implementation("com.google.firebase:firebase-auth")
@@ -72,4 +74,3 @@ android {
 dependencies {
     debugImplementation(libs.compose.uiTooling)
 }
-
