@@ -11,6 +11,7 @@ material = "1.10.0"
 androidx-activity = "1.10.0"
 compose = "1.7.8"
 material3 = "1.3.1"
+navigationRuntimeKtx = "2.9.7"
 
 [libraries]
 # El nombre del accesor se genera así: androidx-activity-compose -> libs.androidx.activity.compose
@@ -27,6 +28,7 @@ compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 compose-uiTooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 compose-uiToolingPreview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 
 [plugins]
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.composeCompiler)
     id("com.google.gms.google-services")
-
 }
 
 android {
@@ -46,13 +45,28 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
     implementation(libs.compose.uiToolingPreview)
+    implementation(libs.androidx.navigation.runtime.ktx)
 
     debugImplementation(libs.compose.uiTooling)
+    
+    // Navigation Compose
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    
+    // Lifecycle & ViewModel Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
-    // Firebase (Manteniendo tu estructura)
+    // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("androidx.biometric:biometric:1.1.0")
+    // ZXing for QR
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.2")
+
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
     // Core & Tooling
     implementation(libs.androidx.core.ktx)
