@@ -55,6 +55,29 @@ class AcademicRepository {
         }
     }
 
+    suspend fun deleteSubject(subjectId: String): Result<Unit> {
+        return try {
+            // Delete subject doc
+            firestore.collection("subjects").document(subjectId).delete().await()
+
+            // Delete associated schedules
+            val schedules = firestore.collection("schedules").whereEqualTo("subjectId", subjectId).get().await()
+            for (doc in schedules.documents) {
+                doc.reference.delete().await()
+            }
+
+            // Remove subjectId from all users who have it
+            val usersWithSubject = firestore.collection("users").whereArrayContains("enrolledSubjectIds", subjectId).get().await()
+            for (doc in usersWithSubject.documents) {
+                doc.reference.update("enrolledSubjectIds", FieldValue.arrayRemove(subjectId)).await()
+            }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun assignSubjectToProfessor(subjectId: String, professorId: String): Result<Unit> {
         return try {
              firestore.collection("subjects").document(subjectId)
@@ -81,15 +104,25 @@ class AcademicRepository {
             val subjectRef = firestore.collection("subjects").document(subjectId)
             val userRef = firestore.collection("users").document(studentId)
 
-            // Utilizamos FieldValue.arrayUnion() que es más seguro y atómico para modificar arreglos en Firestore
             subjectRef.update("studentIds", FieldValue.arrayUnion(studentId)).await()
             userRef.update("enrolledSubjectIds", FieldValue.arrayUnion(subjectId)).await()
             
-            Log.d("Enrollment", "Enrolled student $studentId to $subjectId successfully via arrayUnion.")
-
             Result.success(Unit)
         } catch (e: Exception) {
-            Log.e("Enrollment", "Error enrolling student $studentId to $subjectId", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun unenrollStudentFromSubject(studentId: String, subjectId: String): Result<Unit> {
+        return try {
+            val subjectRef = firestore.collection("subjects").document(subjectId)
+            val userRef = firestore.collection("users").document(studentId)
+
+            subjectRef.update("studentIds", FieldValue.arrayRemove(studentId)).await()
+            userRef.update("enrolledSubjectIds", FieldValue.arrayRemove(subjectId)).await()
+            
+            Result.success(Unit)
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }
@@ -188,7 +221,6 @@ class AcademicRepository {
 
             if (enrolledSubjectIds.isEmpty()) return Result.success(emptyList())
 
-            // Firestore "in" queries only support up to 10 items. Workaround using chunking.
             val chunkedIds = enrolledSubjectIds.chunked(10)
             val allSubjects = mutableListOf<Subject>()
 

@@ -1,12 +1,16 @@
 package com.example.application.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.application.AcademicRepository
@@ -18,6 +22,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminAssignStudentsScreen(navController: NavController) {
+    val context = LocalContext.current
     val repository = remember { AcademicRepository() }
     val scope = rememberCoroutineScope()
     
@@ -25,23 +30,61 @@ fun AdminAssignStudentsScreen(navController: NavController) {
     var students by remember { mutableStateOf<List<User>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
+    var unenrollInfo by remember { mutableStateOf<Pair<User, Subject>?>(null) }
+
+    fun refreshData() {
+        isLoading = true
+        scope.launch {
+            val usersResult = repository.getAllUsers()
+            val subjectsResult = repository.getAllSubjects()
+            
+            usersResult.onSuccess { allUsers ->
+                students = allUsers.filter { it.role == UserRole.STUDENT.name }
+            }
+            subjectsResult.onSuccess {
+                subjects = it
+            }
+            isLoading = false
+        }
+    }
+
     LaunchedEffect(Unit) {
-        val usersResult = repository.getAllUsers()
-        val subjectsResult = repository.getAllSubjects()
-        
-        usersResult.onSuccess { allUsers ->
-            students = allUsers.filter { it.role == UserRole.STUDENT.name }
-        }
-        subjectsResult.onSuccess {
-            subjects = it
-        }
-        isLoading = false
+        refreshData()
+    }
+
+    if (unenrollInfo != null) {
+        val (student, subject) = unenrollInfo!!
+        AlertDialog(
+            onDismissRequest = { unenrollInfo = null },
+            title = { Text("Desinscribir Alumno") },
+            text = { Text("¿Estás seguro de que deseas eliminar este registro?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    scope.launch {
+                        repository.unenrollStudentFromSubject(student.id, subject.id).onSuccess {
+                            Toast.makeText(context, "Alumno desinscrito con éxito", Toast.LENGTH_SHORT).show()
+                            refreshData()
+                        }.onFailure {
+                            Toast.makeText(context, "Error al desinscribir alumno", Toast.LENGTH_SHORT).show()
+                        }
+                        unenrollInfo = null
+                    }
+                }) {
+                    Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { unenrollInfo = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Asignar Alumnos") },
+                title = { Text("Gestionar Inscripciones") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Text("Atrás")
@@ -59,19 +102,24 @@ fun AdminAssignStudentsScreen(navController: NavController) {
                 modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)
             ) {
                 items(subjects) { subject ->
-                    StudentAssignItem(subject = subject, students = students, onAssign = { studentId ->
-                        scope.launch {
-                            repository.enrollStudentToSubject(studentId, subject.id).onSuccess {
-                                // Forzar recomposición actualizando el objeto materia en la lista
-                                subjects = subjects.map {
-                                    if (it.id == subject.id && !it.studentIds.contains(studentId)) {
-                                        it.copy(studentIds = it.studentIds + studentId)
-                                    } else it
+                    StudentAssignItem(
+                        subject = subject, 
+                        allStudents = students, 
+                        onAssign = { studentId ->
+                            scope.launch {
+                                repository.enrollStudentToSubject(studentId, subject.id).onSuccess {
+                                    Toast.makeText(context, "Alumno inscrito", Toast.LENGTH_SHORT).show()
+                                    refreshData()
+                                }.onFailure {
+                                    Toast.makeText(context, "Error al inscribir alumno", Toast.LENGTH_SHORT).show()
                                 }
                             }
+                        },
+                        onUnenrollRequest = { student ->
+                            unenrollInfo = Pair(student, subject)
                         }
-                    })
-                    Spacer(modifier = Modifier.height(8.dp))
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
@@ -80,16 +128,42 @@ fun AdminAssignStudentsScreen(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StudentAssignItem(subject: Subject, students: List<User>, onAssign: (String) -> Unit) {
+fun StudentAssignItem(
+    subject: Subject, 
+    allStudents: List<User>, 
+    onAssign: (String) -> Unit,
+    onUnenrollRequest: (User) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedStudentName by remember { mutableStateOf("Seleccionar Alumno") }
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = "Materia: ${subject.name}", style = MaterialTheme.typography.titleMedium)
             Text(text = "Sección: ${subject.section}", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Alumnos inscritos: ${subject.studentIds.size}", style = MaterialTheme.typography.bodySmall)
             
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(text = "Alumnos inscritos:", style = MaterialTheme.typography.labelLarge)
+            
+            val enrolledStudents = allStudents.filter { subject.studentIds.contains(it.id) }
+            
+            if (enrolledStudents.isEmpty()) {
+                Text(text = "Ningún alumno inscrito", style = MaterialTheme.typography.bodySmall)
+            } else {
+                enrolledStudents.forEach { student ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = student.name, style = MaterialTheme.typography.bodyMedium)
+                        IconButton(onClick = { onUnenrollRequest(student) }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Desinscribir", tint = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
             
             ExposedDropdownMenuBox(
@@ -97,19 +171,18 @@ fun StudentAssignItem(subject: Subject, students: List<User>, onAssign: (String)
                 onExpandedChange = { expanded = it }
             ) {
                 OutlinedTextField(
-                    value = selectedStudentName,
+                    value = "Inscribir nuevo alumno",
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Agregar alumno") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    modifier = Modifier.menuAnchor()
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    // Filtrar estudiantes que aún no están en la materia
-                    val availableStudents = students.filter { !subject.studentIds.contains(it.id) }
+                    val availableStudents = allStudents.filter { !subject.studentIds.contains(it.id) }
                     
                     if (availableStudents.isEmpty()) {
                         DropdownMenuItem(
@@ -123,8 +196,6 @@ fun StudentAssignItem(subject: Subject, students: List<User>, onAssign: (String)
                                 onClick = {
                                     expanded = false
                                     onAssign(st.id)
-                                    // Resetear el placeholder visualmente para agregar otro luego
-                                    selectedStudentName = "Seleccionar Alumno"
                                 }
                             )
                         }

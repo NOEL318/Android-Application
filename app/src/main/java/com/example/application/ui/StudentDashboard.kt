@@ -15,6 +15,7 @@ import com.example.application.AuthRepository
 import com.example.application.QrHelper
 import com.example.application.SessionManager
 import com.example.application.Subject
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,18 +30,28 @@ fun StudentDashboard(navController: NavController) {
     var enrolledSubjects by remember { mutableStateOf<List<Subject>>(emptyList()) }
     var selectedSubject by remember { mutableStateOf<Subject?>(null) }
     var showQr by remember { mutableStateOf(false) }
+    
+    // Estados para la generación asíncrona del QR
+    var qrBitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+    var isLoadingQr by remember { mutableStateOf(false) }
 
-    // Usar un key constante para que recargue cuando el estudiante inscribe una nueva materia
     LaunchedEffect(Unit) {
         repository.getEnrolledSubjects(studentId).onSuccess {
             enrolledSubjects = it
         }
     }
     
-    val qrBitmap = remember(showQr, selectedSubject) {
+    // Efecto para generar el QR cuando cambie el estado
+    LaunchedEffect(showQr, selectedSubject) {
         if (showQr && selectedSubject != null) {
-            QrHelper.generateQRForAttendance(studentId, selectedSubject!!.id)
-        } else null
+            isLoadingQr = true
+            // Agregamos un pequeño delay de 500ms para que se aprecie la carga
+            delay(600) 
+            qrBitmap = QrHelper.generateQRForAttendance(studentId, selectedSubject!!.id)
+            isLoadingQr = false
+        } else {
+            qrBitmap = null
+        }
     }
 
     Scaffold(
@@ -75,7 +86,7 @@ fun StudentDashboard(navController: NavController) {
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            Divider()
+            HorizontalDivider()
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Pase de Lista", style = MaterialTheme.typography.titleMedium)
@@ -106,7 +117,7 @@ fun StudentDashboard(navController: NavController) {
                                 onClick = {
                                     selectedSubject = subject
                                     expanded = false
-                                    showQr = false // Ocultar si cambia materia
+                                    showQr = false
                                 }
                             )
                         }
@@ -123,17 +134,27 @@ fun StudentDashboard(navController: NavController) {
                     Text(if (showQr) "Ocultar QR" else "Generar QR para Pase de Lista")
                 }
                 
-                if (showQr && qrBitmap != null) {
-                    Image(
-                        bitmap = qrBitmap.asImageBitmap(),
-                        contentDescription = "Código QR de Asistencia",
-                        modifier = Modifier.size(250.dp).padding(16.dp)
-                    )
+                // Mostrar progreso o el QR
+                if (showQr) {
+                    if (isLoadingQr) {
+                        Box(
+                            modifier = Modifier.size(250.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    } else if (qrBitmap != null) {
+                        Image(
+                            bitmap = qrBitmap!!.asImageBitmap(),
+                            contentDescription = "Código QR de Asistencia",
+                            modifier = Modifier.size(250.dp).padding(16.dp)
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            Divider()
+            HorizontalDivider()
             Spacer(modifier = Modifier.height(16.dp))
             
             Button(

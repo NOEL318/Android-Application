@@ -1,11 +1,13 @@
 package com.example.application.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.application.AcademicRepository
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminAssignRoleScreen(navController: NavController) {
+    val context = LocalContext.current
     val repository = remember { AcademicRepository() }
     val scope = rememberCoroutineScope()
     
@@ -54,9 +57,13 @@ fun AdminAssignRoleScreen(navController: NavController) {
                 items(users) { user ->
                     UserRoleItem(user = user, onRoleChanged = { newRole ->
                         scope.launch {
-                            repository.assignRole(user.id, newRole)
-                            // Actualizar la lista local
-                            users = users.map { if (it.id == user.id) it.copy(role = newRole.name) else it }
+                            repository.assignRole(user.id, newRole).onSuccess {
+                                Toast.makeText(context, "Rol actualizado con éxito", Toast.LENGTH_SHORT).show()
+                                // Actualizar la lista local
+                                users = users.map { if (it.id == user.id) it.copy(role = newRole.name) else it }
+                            }.onFailure {
+                                Toast.makeText(context, "Error al actualizar rol", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     })
                     Spacer(modifier = Modifier.height(8.dp))

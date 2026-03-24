@@ -1,6 +1,9 @@
 package com.example.application
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import android.content.Context
@@ -15,9 +18,8 @@ class AuthRepository(private val context: Context) {
     suspend fun loginUser(email: String, password: String): Result<User> {
         return try {
             val authResult = auth.signInWithEmailAndPassword(email, password).await()
-            val userId = authResult.user?.uid ?: throw Exception("User ID is null")
+            val userId = authResult.user?.uid ?: throw Exception("ID de usuario nulo")
 
-            // Buscar en Firestore el rol del usuario
             val documentSnapshot = firestore.collection("users").document(userId).get().await()
 
             if (documentSnapshot.exists()) {
@@ -30,31 +32,34 @@ class AuthRepository(private val context: Context) {
                     )
                     Result.success(user)
                 } else {
-                    Result.failure(Exception("Could not parse user data"))
+                    Result.failure(Exception("No se pudieron obtener los datos del usuario"))
                 }
             } else {
-                Result.failure(Exception("User data not found in database"))
+                Result.failure(Exception("El usuario no existe en la base de datos"))
             }
 
+        } catch (e: FirebaseAuthInvalidUserException) {
+            Result.failure(Exception("El correo electrónico no está registrado"))
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            Result.failure(Exception("Contraseña incorrecta"))
         } catch (e: Exception) {
-            Log.e("AuthRepository", "Error logging in: ${e.message}")
-            Result.failure(e)
+            Log.e("AuthRepository", "Error al iniciar sesión: ${e.message}")
+            Result.failure(Exception("Error de conexión o datos inválidos"))
         }
     }
 
     suspend fun registerUser(name: String, email: String, password: String): Result<User> {
         return try {
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
-            val userId = authResult.user?.uid ?: throw Exception("User ID is null")
+            val userId = authResult.user?.uid ?: throw Exception("ID de usuario nulo")
 
             val newUser = User(
                 id = userId,
                 name = name,
                 email = email,
-                role = UserRole.ADMIN.name // Estudiante por defecto al registrar
+                role = UserRole.ADMIN.name
             )
 
-            // Guardar usuario en Firestore
             firestore.collection("users").document(userId).set(newUser).await()
 
             sessionManager.createLoginSession(
@@ -65,7 +70,7 @@ class AuthRepository(private val context: Context) {
             Result.success(newUser)
 
         } catch (e: Exception) {
-             Log.e("AuthRepository", "Error registering: ${e.message}")
+             Log.e("AuthRepository", "Error al registrar: ${e.message}")
             Result.failure(e)
         }
     }
@@ -75,7 +80,6 @@ class AuthRepository(private val context: Context) {
         sessionManager.logoutUser()
     }
     
-    // Función de ayuda para rutear después del login
     fun getInitialRoute(): String {
         return if (sessionManager.isLoggedIn()) {
             when (sessionManager.getUserRole()) {
